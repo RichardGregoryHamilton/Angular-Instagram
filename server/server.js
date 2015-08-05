@@ -63,6 +63,44 @@ function isAuthenticated(req, res, next) {
 	})
 }
 
+app.get('/api/feed', function(req, res) {
+	var feedUrl = 'https://api.instagram.com/v1/users/self/feed';
+	var params = { access_token: req.user.accessToken };
+	
+	request.get({ url: feedUrl, qs: params, json: true }, function(error, response, body) {
+		if (!error && response.statusCode == 200) {
+			res.send(body.data);
+		}
+	});
+});
+
+app.get('/api/media/:id', isAuthenticated, function(req, res, next) {
+	var mediaUrl = 'https://api.instagram.com/v1/media/' + req.params.id;
+	var params = { access_token: req.user.accessToken };
+	
+	request.get({ url: mediaUrl, qs: params, json: true }, function(error, response, body) {
+		if (!error &amp;amp;&amp;amp; response.statusCode == 200) {
+			res.send(body.data);
+		}
+	});
+});
+
+app.post('/api/like', isAuthenticated, function(req, res, next) {
+	var mediaId = req.body.mediaId;
+	var accessToken = { access_token: req.user.accessToken };
+	var likeUrl = 'https://api.instagram.com/v1/media/' + mediaId + '/likes';
+	
+	request.post({ url: likeUrl, form: accessToken, json: true }, function(error, response, body) {
+		if (response.statusCode !== 200) {
+			return res.status(response.statusCode).send({
+				code: response.statusCode,
+				message: body.meta.error_message
+			});
+		}
+		response.status(200).end();
+	});
+});
+
 app.post('/auth/login', function(req, res) {
 	User.findOne({ email: req.body.email }, '+password', function(err, user) {
 		if (!user) {
@@ -118,7 +156,8 @@ app.post('/auth/instagram', function(req, res) {
 		grant_type: 'authorization_code'
 	};
 	
-	req.post({ url: accessTokenUrl, form: params, json: true }, function(e, r, body) {
+	request.post({ url: accessTokenUrl, form: params, json: true }, function(error, response, body) {
+		
 		if (req.headers.authorization) {
 			User.findOne({ instagramId: body.user.id }, function(err, existingUser) {
 				var token = req.headers.authorization.split(' ')[1];
