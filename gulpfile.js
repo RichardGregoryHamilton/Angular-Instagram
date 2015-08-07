@@ -77,3 +77,12 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', ['watch', 'styles', 'minify']);
+
+gulp.task('complexity', function() {
+    return gulp.src([
+        '!client/vendor/*.*',
+        '!client/app.min.js',
+        'client/**/*.js'
+    ])
+        .pipe(complexity());
+});

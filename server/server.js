@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var path = require('path');
 var request = require('request');
 var config = require('./config');
+var compress = require('compression');
 
 var User = mongoose.model('User', new mongoose.Schema({
 	instagramId: { type: String, index: true },
@@ -25,10 +26,11 @@ mongoose.connect(config.db);
 var app = express();
 
 app.set('port', process.env.PORT || 3000);
+app.use(compress());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 2628000000 }));
 
 function createToken(user) {
 	var payload = {
