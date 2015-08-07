@@ -11,4 +11,4 @@ angular.module('Instagram')
 					console.log(response.data);
 				});
 		};
-	})
+	});
