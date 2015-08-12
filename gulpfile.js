@@ -18,7 +18,7 @@ var banner = ['/**',
     ''].join('\n');
 
 gulp.task('minify', function() {
-    var templatesFilter = gulpFilter('clients/views/*.html');
+    var templatesFilter = gulpFilter('clients/views/*.html', {restore: true});
 
     return gulp.src([
         'client/vendor/angular.js',
@@ -31,7 +31,7 @@ gulp.task('minify', function() {
     ])
         .pipe(templatesFilter)
         .pipe(templateCache({ root: 'views', module: 'Instagram' }))
-        .pipe(templatesFilter.restore())
+        .pipe(templatesFilter.restore)
         .pipe(concat('app.min.js'))
         .pipe(ngAnnotate())
         .pipe(uglify())
